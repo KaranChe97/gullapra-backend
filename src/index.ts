@@ -1,4 +1,2 @@
-import { write, writeFile } from 'fs';
 
-writeFile
-console.log("ts changed");
+console.log("ts changed dev");
