@@ -2,17 +2,17 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import chalk from "chalk";
 import * as bodyParser from "body-parser";
 import router from "./router";
+import { connect } from "mongoose";
+
 
 const log = console.log;
 
 class App {
   public app: Application;
-  public port: number;
 
-  constructor(controllers: any, port: number) {
+  constructor(controllers: any) {
     this.app = express();
-    this.port = port;
-
+    this.connectDatabase();
     this.initializeMiddleware();
     this.initializeControllers(controllers);
   }
@@ -35,13 +35,29 @@ class App {
 
   private initializeControllers(controllers: any) {
     controllers.forEach((controller: any) => {
-      this.app.use("/", controller.router);
+      this.app.use("/", controller.router); 
     });
   }
 
+  private connectDatabase() {
+    const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH } = process.env;
+    log("connecting to DB.....")
+    connect(
+      `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`,
+      { useUnifiedTopology: true, useNewUrlParser: true },
+      (err) => {
+        if (!err) {
+          log("DB connection created successfully");
+        } else {
+          log("error in creating DB connection", err);
+        }
+      }
+    );
+  }
+
   public listen() {
-    this.app.listen(this.port, () => {
-      console.log(`App listening on the port ${this.port}`);
+    this.app.listen(process.env.PORT, () => {
+      console.log(`App listening on the port ${process.env.PORT}`);
     });
   }
 }
