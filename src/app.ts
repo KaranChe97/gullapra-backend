@@ -1,9 +1,8 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import chalk from "chalk";
 import * as bodyParser from "body-parser";
-import router from "./router";
 import { connect } from "mongoose";
-
+import errorMiddleware from "./middleware/error.middleware";
 
 const log = console.log;
 
@@ -15,6 +14,7 @@ class App {
     this.connectDatabase();
     this.initializeMiddleware();
     this.initializeControllers(controllers);
+    this.initializeErrorHandling();
   }
 
   private loggerMiddleWare(
@@ -35,13 +35,17 @@ class App {
 
   private initializeControllers(controllers: any) {
     controllers.forEach((controller: any) => {
-      this.app.use("/", controller.router); 
+      this.app.use("/", controller.router);
     });
+  }
+
+  private initializeErrorHandling() {
+    this.app.use(errorMiddleware);
   }
 
   private connectDatabase() {
     const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH } = process.env;
-    log("connecting to DB.....")
+    log("connecting to DB.....");
     connect(
       `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`,
       { useUnifiedTopology: true, useNewUrlParser: true },
