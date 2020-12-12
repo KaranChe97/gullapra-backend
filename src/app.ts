@@ -1,6 +1,8 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import chalk from "chalk";
 import * as bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+
 import { connect } from "mongoose";
 import errorMiddleware from "./middleware/error.middleware";
 
@@ -31,6 +33,7 @@ class App {
     this.app.use(bodyParser.raw({ limit: "50mb" }));
     this.app.use(bodyParser.json({ limit: "50mb" }));
     this.app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+    this.app.use(cookieParser());
   }
 
   private initializeControllers(controllers: any) {
